@@ -16,7 +16,7 @@ the build dependencies for the "ioquake3" package.
 ```sh
 $ sudo aptitude build-dep ioquake3
 $ sudo apt-get install libsdl1.2-dev libxmp-dev
-$ git clone git://github.com/OpenArena/engine.git
+$ git clone https://github.com/OpenArena/engine.git
 $ cd engine
 $ make
 ```
@@ -30,11 +30,11 @@ same directory to run it.
 
 ```sh
 # Get this project or sign up on github and fork it
-$ git clone git://github.com/OpenArena/engine.git
+$ git clone https://github.com/OpenArena/engine.git
 $ cd engine
 
 # Create a reference to the upstream project
-$ git remote add upstream git://github.com/ioquake/ioq3.git
+$ git remote add upstream https://github.com/ioquake/ioq3.git
 
 # View changes in this project compared to ioquake3
 $ git fetch upstream
