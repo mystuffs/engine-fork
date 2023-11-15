@@ -365,7 +365,7 @@ ifneq (,$(findstring "$(PLATFORM)", "linux" "gnu_kfreebsd" "kfreebsd-gnu"))
 
 
   ifeq ($(ARCH),x86_64)
-    OPTIMIZEVM = -O3 -fomit-frame-pointer -funroll-loops
+    OPTIMIZEVM = -O3 -fomit-frame-pointer -funroll-loops -march=native
     OPTIMIZE = $(OPTIMIZEVM) -ffast-math
     HAVE_VM_COMPILED = true
   else
@@ -3003,7 +3003,6 @@ toolsclean2:
 	@rm -f $(LBURG) $(DAGCHECK_C) $(Q3RCC) $(Q3CPP) $(Q3LCC) $(Q3ASM)
 
 distclean: clean toolsclean
-	@rm -rf $(BUILD_DIR)
 
 installer: release
 ifeq ($(PLATFORM),mingw32)

@@ -23,14 +23,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // q_shared.c -- stateless support routines that are included in each code dll
 #include "q_shared.h"
 
-float Com_Clamp( float min, float max, float value ) {
-	if ( value < min ) {
+float Com_Clamp( float min, float max, float value )
+{
+	if (value < min)
 		return min;
-	}
-	if ( value > max ) {
+	else if (value > max)
 		return max;
-	}
-	return value;
+	else
+		return value;
 }
 
 
@@ -41,15 +41,14 @@ COM_SkipPath
 */
 char *COM_SkipPath (char *pathname)
 {
-	char	*last;
-	
+	char *last;
+
 	last = pathname;
-	while (*pathname)
-	{
-		if (*pathname=='/')
-			last = pathname+1;
-		pathname++;
-	}
+        do {
+		if (*pathname == '/')
+			last = pathname + 1;
+	} while (*pathname++);
+
 	return last;
 }
 
@@ -60,11 +59,13 @@ COM_GetExtension
 */
 const char *COM_GetExtension( const char *name )
 {
-	const char *dot = strrchr(name, '.'), *slash;
-	if (dot && (!(slash = strrchr(name, '/')) || slash < dot))
-		return dot + 1;
-	else
+	char *dot;
+
+	dot = strrchr(name, '.');
+	if (dot == NULL)
 		return "";
+
+	return dot + 1;
 }
 
 
@@ -73,17 +74,21 @@ const char *COM_GetExtension( const char *name )
 COM_StripExtension
 ============
 */
-void COM_StripExtension( const char *in, char *out, int destsize )
+void COM_StripExtension( const char *in, char *out, int sz )
 {
-	const char *dot = strrchr(in, '.'), *slash;
+        char *dot;
+	int t;
 
-	if (dot && (!(slash = strrchr(in, '/')) || slash < dot))
-		destsize = (destsize < dot-in+1 ? destsize : dot-in+1);
+	dot = strrchr(in, '.');
+        if (dot) {
+		t = dot - in + 1;
+	        sz = sz < t ? sz : t;
+	}
 
-	if ( in == out && destsize > 1 )
-		out[destsize-1] = '\0';
+	if (in == out && sz > 1)
+		out[sz - 1] = '\0';
 	else
-		Q_strncpyz(out, in, destsize);
+		Q_strncpyz(out, in, sz);
 }
 
 /*
@@ -185,11 +190,7 @@ short   ShortSwap (short l)
 	return (b1<<8) + b2;
 }
 
-short	ShortNoSwap (short l)
-{
-	return l;
-}
-
+/* Builtins can be used */
 int    LongSwap (int l)
 {
 	byte    b1,b2,b3,b4;
@@ -200,11 +201,6 @@ int    LongSwap (int l)
 	b4 = (l>>24)&255;
 
 	return ((int)b1<<24) + ((int)b2<<16) + ((int)b3<<8) + b4;
-}
-
-int	LongNoSwap (int l)
-{
-	return l;
 }
 
 qint64 Long64Swap (qint64 ll)
@@ -223,11 +219,6 @@ qint64 Long64Swap (qint64 ll)
 	return result;
 }
 
-qint64 Long64NoSwap (qint64 ll)
-{
-	return ll;
-}
-
 float FloatSwap (const float *f) {
 	floatint_t out;
 
@@ -235,11 +226,6 @@ float FloatSwap (const float *f) {
 	out.ui = LongSwap(out.ui);
 
 	return out.f;
-}
-
-float FloatNoSwap (const float *f)
-{
-	return *f;
 }
 
 /*
@@ -797,75 +783,20 @@ Safe strncpy that ensures a trailing zero
 =============
 */
 void Q_strncpyz( char *dest, const char *src, int destsize ) {
-  if ( !dest ) {
-    Com_Error( ERR_FATAL, "Q_strncpyz: NULL dest" );
-  }
-	if ( !src ) {
-		Com_Error( ERR_FATAL, "Q_strncpyz: NULL src" );
-	}
 	if ( destsize < 1 ) {
 		Com_Error(ERR_FATAL,"Q_strncpyz: destsize < 1" ); 
 	}
 
 	strncpy( dest, src, destsize-1 );
-  dest[destsize-1] = 0;
+	dest[destsize-1] = 0;
 }
                  
 int Q_stricmpn (const char *s1, const char *s2, int n) {
-	int		c1, c2;
-
-        if ( s1 == NULL ) {
-           if ( s2 == NULL )
-             return 0;
-           else
-             return -1;
-        }
-        else if ( s2==NULL )
-          return 1;
-
-
-	
-	do {
-		c1 = *s1++;
-		c2 = *s2++;
-
-		if (!n--) {
-			return 0;		// strings are equal until end point
-		}
-		
-		if (c1 != c2) {
-			if (c1 >= 'a' && c1 <= 'z') {
-				c1 -= ('a' - 'A');
-			}
-			if (c2 >= 'a' && c2 <= 'z') {
-				c2 -= ('a' - 'A');
-			}
-			if (c1 != c2) {
-				return c1 < c2 ? -1 : 1;
-			}
-		}
-	} while (c1);
-	
-	return 0;		// strings are equal
+	return strncasecmp(s1, s2, n);
 }
 
 int Q_strncmp (const char *s1, const char *s2, int n) {
-	int		c1, c2;
-	
-	do {
-		c1 = *s1++;
-		c2 = *s2++;
-
-		if (!n--) {
-			return 0;		// strings are equal until end point
-		}
-		
-		if (c1 != c2) {
-			return c1 < c2 ? -1 : 1;
-		}
-	} while (c1);
-	
-	return 0;		// strings are equal
+	return strncmp(s1, s2, n);
 }
 
 int Q_stricmp (const char *s1, const char *s2) {
@@ -874,25 +805,19 @@ int Q_stricmp (const char *s1, const char *s2) {
 
 
 char *Q_strlwr( char *s1 ) {
-    char	*s;
+	do {
+		*s1 = tolower(*s1);
+	} while (*s1++);
 
-    s = s1;
-	while ( *s ) {
-		*s = tolower(*s);
-		s++;
-	}
-    return s1;
+	return s1;
 }
 
 char *Q_strupr( char *s1 ) {
-    char	*s;
+	do {
+		*s1 = toupper(*s1);
+	} while (*s1++);
 
-    s = s1;
-	while ( *s ) {
-		*s = toupper(*s);
-		s++;
-	}
-    return s1;
+	return s1;
 }
 
 

@@ -110,7 +110,7 @@ static void copy64(uint32_t *M, byte *in)
 			(in[i*4+1]<<8) | (in[i*4+0]<<0);
 }
 
-static void copy4(byte *out,uint32_t x)
+static __inline__ void copy4(byte *out,uint32_t x)
 {
 	out[0] = x&0xFF;
 	out[1] = (x>>8)&0xFF;
@@ -118,7 +118,7 @@ static void copy4(byte *out,uint32_t x)
 	out[3] = (x>>24)&0xFF;
 }
 
-void mdfour_begin(struct mdfour *md)
+static __inline__ void mdfour_begin(struct mdfour *md)
 {
 	md->A = 0x67452301;
 	md->B = 0xefcdab89;
@@ -138,8 +138,8 @@ static void mdfour_tail(byte *in, int n)
 
 	b = m->totalN * 8;
 
-	Com_Memset(buf, 0, 128);
-	if (n) Com_Memcpy(buf, in, n);
+	memset(buf, 0, sizeof(buf));
+	if (n) memcpy(buf, in, n);
 	buf[n] = 0x80;
 
 	if (n <= 55) {
@@ -153,6 +153,8 @@ static void mdfour_tail(byte *in, int n)
 		copy64(M, buf+64);
 		mdfour64(M);
 	}
+
+	memset(buf, 0, sizeof(buf));
 }
 
 static void mdfour_update(struct mdfour *md, byte *in, int n)
